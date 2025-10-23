@@ -2,11 +2,12 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import InputMask from 'react-input-mask'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { isValidCpfOrCnpj, onlyDigits } from '../utils/validators'
 
 const boletoSchema = z.object({
   name: z.string().min(2, 'Informe o nome completo'),
-  doc: z.string().min(11, 'CPF/CNPJ inválido'),
+  doc: z.preprocess((v) => onlyDigits(v), z.string().refine(isValidCpfOrCnpj, 'CPF/CNPJ inválido')),
   email: z.string().email('E-mail inválido'),
   amount: z
     .number({ invalid_type_error: 'Informe um valor numérico' })
@@ -17,6 +18,7 @@ type BoletoForm = z.infer<typeof boletoSchema>
 
 function Boleto() {
   const [success, setSuccess] = useState<string | null>(null)
+  const [docValue, setDocValue] = useState('')
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, reset } = useForm<BoletoForm>({
     resolver: zodResolver(boletoSchema),
     defaultValues: { name: '', doc: '', email: '', amount: 50 }
@@ -27,6 +29,8 @@ function Boleto() {
     setSuccess('Boleto gerado com sucesso! (mock). Linha digitável: 23790.00000 00000.000000 00000.000000 0 00000000000000')
     reset({ ...values })
   }
+
+  const docMask = useMemo(() => (onlyDigits(docValue).length > 11 ? '99.999.999/9999-99' : '999.999.999-99'), [docValue])
 
   return (
     <section>
@@ -47,9 +51,10 @@ function Boleto() {
               <div className="col-12 col-md-6">
                 <label className="form-label">CPF/CNPJ</label>
                 <InputMask
-                  mask="999.999.999-99"
+                  mask={docMask}
                   className={`form-control ${errors.doc ? 'is-invalid' : ''}`}
-                  onChange={(e) => setValue('doc', e.target.value)}
+                  value={docValue}
+                  onChange={(e) => { setDocValue(e.target.value); setValue('doc', e.target.value) }}
                 />
                 {errors.doc && <div className="invalid-feedback">{errors.doc.message}</div>}
               </div>

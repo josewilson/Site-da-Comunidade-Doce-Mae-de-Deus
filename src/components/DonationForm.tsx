@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import InputMask from 'react-input-mask'
+import { isValidPhoneBR, onlyDigits } from '../utils/validators'
 
 type Props = {
   onSubmit?: (donation: Donation) => void
@@ -12,7 +13,7 @@ type Props = {
 const schema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
   email: z.string().email('E-mail inválido'),
-  phone: z.string().optional(),
+  phone: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidPhoneBR(v), 'Telefone inválido')),
   amount: z
     .number({ invalid_type_error: 'Informe um valor numérico' })
     .min(1, 'Valor mínimo é R$ 1'),

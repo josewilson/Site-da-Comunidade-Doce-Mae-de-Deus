@@ -5,17 +5,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import InputMask from 'react-input-mask'
 import DonationForm from '../components/DonationForm'
 import { loadBootstrap } from '../utils/bootstrap'
+import { isValidCEP, isValidUF, isValidPhoneBR, isValidCPF, onlyDigits } from '../utils/validators'
 
 const amigoSchema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
   email: z.string().email('E-mail inválido'),
-  phone: z.string().optional(),
-  cpf: z.string().min(11, 'CPF inválido').optional(),
+  phone: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidPhoneBR(v), 'Telefone inválido')),
+  cpf: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidCPF(v), 'CPF inválido')),
   birth: z.string().optional(),
-  cep: z.string().optional(),
+  cep: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidCEP(v), 'CEP inválido')),
   address: z.string().optional(),
   city: z.string().optional(),
-  state: z.string().optional(),
+  state: z.string().optional().refine((v) => !v || isValidUF(v), 'UF inválida'),
   consent: z.literal(true, { errorMap: () => ({ message: 'É necessário consentir com a política de privacidade' }) })
 })
 
