@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,6 +16,7 @@ const amigoSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
+  consent: z.literal(true, { errorMap: () => ({ message: 'É necessário consentir com a política de privacidade' }) })
 })
 
 type AmigoForm = z.infer<typeof amigoSchema>
@@ -33,9 +34,12 @@ type BoletoForm = z.infer<typeof boletoSchema>
 
 function AmigoEvangelizador() {
   const [ok, setOk] = useState<string | null>(null)
+  const [frequency, setFrequency] = useState<'Única' | 'Mensal' | 'Trimestral' | 'Anual'>('Mensal')
+  const cadastroRef = useRef<HTMLDivElement | null>(null)
+  const doacoesRef = useRef<HTMLDivElement | null>(null)
   const amigo = useForm<AmigoForm>({
     resolver: zodResolver(amigoSchema),
-    defaultValues: { name: '', email: '', phone: '', cpf: '', birth: '', cep: '', address: '', city: '', state: '' }
+    defaultValues: { name: '', email: '', phone: '', cpf: '', birth: '', cep: '', address: '', city: '', state: '', consent: false }
   })
 
   const boleto = useForm<BoletoForm>({
@@ -45,7 +49,12 @@ function AmigoEvangelizador() {
 
   function submitAmigo(values: AmigoForm) {
     console.log('Cadastro Amigo Evangelizador:', values)
-    setOk('Cadastro enviado! (mock)')
+    // Persistência local simples
+    const key = 'amigos_evangelizadores'
+    const list = JSON.parse(localStorage.getItem(key) || '[]')
+    list.push({ ...values, createdAt: new Date().toISOString() })
+    localStorage.setItem(key, JSON.stringify(list))
+    setOk('Cadastro enviado! (salvo localmente)')
     amigo.reset({ ...values })
   }
 
@@ -59,19 +68,51 @@ function AmigoEvangelizador() {
     await loadBootstrap()
   }
 
+  function scrollTo(el: HTMLElement | null) {
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  function exportCsv() {
+    const key = 'amigos_evangelizadores'
+    const list: any[] = JSON.parse(localStorage.getItem(key) || '[]')
+    if (!list.length) {
+      alert('Não há cadastros para exportar')
+      return
+    }
+    const headers = ['name','email','phone','cpf','birth','cep','address','city','state','consent','createdAt']
+    const rows = [headers.join(',')]
+    for (const item of list) {
+      const row = headers.map(h => {
+        const v = item[h] ?? ''
+        const s = String(v).replaceAll('"','""')
+        return '"' + s + '"'
+      }).join(',')
+      rows.push(row)
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'amigos-evangelizadores.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <section>
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <h2 className="h3 mb-0">Amigo Evangelizador</h2>
         <div className="btn-group" role="group" aria-label="Navegação seções">
-          <a href="#cadastro" className="btn btn-outline-primary" onClick={() => ensureTabs()}>Cadastro</a>
-          <a href="#doacoes" className="btn btn-outline-secondary" onClick={() => ensureTabs()}>Doações</a>
+          <button type="button" className="btn btn-outline-primary" onClick={() => { ensureTabs(); scrollTo(cadastroRef.current) }}>Cadastro</button>
+          <button type="button" className="btn btn-outline-secondary" onClick={() => { ensureTabs(); scrollTo(doacoesRef.current) }}>Doações</button>
         </div>
       </div>
 
       <p className="text-muted">Seja Amigo Evangelizador: cadastre-se e escolha sua melhor forma de apoiar nossa missão.</p>
 
-      <div id="cadastro" className="card shadow-sm mb-4">
+      <div ref={cadastroRef} className="card shadow-sm mb-4">
         <div className="card-header bg-primary text-white">Cadastro</div>
         <div className="card-body">
           {ok && <div className="alert alert-success" role="alert">{ok}</div>}
@@ -116,16 +157,22 @@ function AmigoEvangelizador() {
                 <input className="form-control" maxLength={2} {...amigo.register('state')} />
               </div>
             </div>
+            <div className="form-check mt-3">
+              <input id="consent" className={`form-check-input ${amigo.formState.errors.consent ? 'is-invalid' : ''}`} type="checkbox" {...amigo.register('consent')} />
+              <label htmlFor="consent" className="form-check-label">Autorizo o contato e concordo com a Política de Privacidade.</label>
+              {amigo.formState.errors.consent && <div className="invalid-feedback d-block">{amigo.formState.errors.consent.message as any}</div>}
+            </div>
             <div className="mt-3">
               <button type="submit" className="btn btn-primary" disabled={amigo.formState.isSubmitting}>
                 {amigo.formState.isSubmitting ? 'Enviando...' : 'Enviar Cadastro'}
               </button>
+              <button type="button" className="btn btn-outline-secondary ms-2" onClick={exportCsv}>Exportar CSV</button>
             </div>
           </form>
         </div>
       </div>
 
-      <div id="doacoes" className="card shadow-sm mb-4">
+      <div ref={doacoesRef} className="card shadow-sm mb-4">
         <div className="card-header bg-secondary text-white">Doações</div>
         <div className="card-body">
           <p className="text-muted">Escolha uma das modalidades abaixo para apoiar mensalmente ou quando desejar.</p>
@@ -133,6 +180,18 @@ function AmigoEvangelizador() {
           <div className="row g-4">
             <div className="col-12 col-lg-6">
               <h3 className="h5">Cadastro de Doação</h3>
+              <div className="row g-2 align-items-end mb-2">
+                <div className="col-12 col-md-6">
+                  <label className="form-label">Periodicidade</label>
+                  <select className="form-select" value={frequency} onChange={(e)=> setFrequency(e.target.value as any)}>
+                    <option>Única</option>
+                    <option>Mensal</option>
+                    <option>Trimestral</option>
+                    <option>Anual</option>
+                  </select>
+                </div>
+              </div>
+              <p className="text-muted small">Configuração atual: {frequency}.</p>
               <DonationForm />
             </div>
             <div className="col-12 col-lg-6">
@@ -157,7 +216,7 @@ function AmigoEvangelizador() {
               <h3 className="h5">Boleto</h3>
               <form onSubmit={boleto.handleSubmit((v)=>{
                 // mock de geração
-                alert('Boleto gerado! (mock)')
+                alert(`Boleto gerado! (mock)\nPeriodicidade: ${frequency}`)
                 console.log('Boleto Amigo Evangelizador:', v)
               })} noValidate>
                 <div className="row g-3">
@@ -197,4 +256,3 @@ function AmigoEvangelizador() {
 }
 
 export default AmigoEvangelizador
-

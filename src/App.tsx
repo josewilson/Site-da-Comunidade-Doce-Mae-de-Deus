@@ -42,7 +42,7 @@ function App() {
                 <NavLink to="/eventos" className={({isActive}) => `nav-link${isActive ? ' active' : ''}`}>Eventos</NavLink>
               </li>
               <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Doação</a>
+                <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" onClick={() => void loadBootstrap()} onMouseEnter={() => void loadBootstrap()}>Doação</a>
                 <ul className="dropdown-menu">
                   <li><NavLink to="/doacao" className={({isActive}) => `dropdown-item${isActive ? ' active' : ''}`}>Opções</NavLink></li>
                   <li><NavLink to="/cadastro-doacao" className={({isActive}) => `dropdown-item${isActive ? ' active' : ''}`}>Cadastro</NavLink></li>
@@ -74,3 +74,4 @@ function App() {
 }
 
 export default App
+
