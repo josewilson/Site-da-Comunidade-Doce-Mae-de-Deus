@@ -8,6 +8,7 @@ const Doacao = lazy(() => import('./pages/Doacao'))
 const CadastroDoacao = lazy(() => import('./pages/CadastroDoacao'))
 const Pix = lazy(() => import('./pages/Pix'))
 const Boleto = lazy(() => import('./pages/Boleto'))
+const AmigoEvangelizador = lazy(() => import('./pages/AmigoEvangelizador'))
 import Header from './components/Header'
 import Footer from './components/Footer'
 import { loadBootstrap } from './utils/bootstrap'
@@ -35,6 +36,9 @@ function App() {
                 <NavLink to="/quem-somos" className={({isActive}) => `nav-link${isActive ? ' active' : ''}`}>Quem Somos</NavLink>
               </li>
               <li className="nav-item">
+                <NavLink to="/amigo-evangelizador" className={({isActive}) => `nav-link${isActive ? ' active' : ''}`}>Amigo Evangelizador</NavLink>
+              </li>
+              <li className="nav-item">
                 <NavLink to="/eventos" className={({isActive}) => `nav-link${isActive ? ' active' : ''}`}>Eventos</NavLink>
               </li>
               <li className="nav-item dropdown">
@@ -60,6 +64,7 @@ function App() {
             <Route path="/cadastro-doacao" element={<CadastroDoacao />} />
             <Route path="/pix" element={<Pix />} />
             <Route path="/boleto" element={<Boleto />} />
+            <Route path="/amigo-evangelizador" element={<AmigoEvangelizador />} />
           </Routes>
         </Suspense>
       </main>
