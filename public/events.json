@@ -1,0 +1,19 @@
+[
+  {
+    "id": "1",
+    "title": "Missa de Ação de Graças",
+    "date": "2025-12-08T19:00:00.000Z",
+    "description": "Celebração especial com a comunidade e convidados.",
+    "location": "Igreja Matriz",
+    "image": "/logo.png"
+  },
+  {
+    "id": "2",
+    "title": "Feira Solidária",
+    "date": "2026-01-15T14:00:00.000Z",
+    "description": "Arrecadação de alimentos e roupas para famílias.",
+    "location": "Salão Paroquial",
+    "image": "https://placehold.co/600x300?text=Feira+Solidaria"
+  }
+]
+

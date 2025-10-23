@@ -1,0 +1,5 @@
+/* Overrides leves para conviver com Bootstrap */
+html, body { height: 100%; }
+body { margin: 0; }
+/* Espaçamento padrão principal */
+main { padding: 1rem 0; }
