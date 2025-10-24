@@ -296,7 +296,10 @@ function AmigoEvangelizador() {
                   <div className="d-flex justify-content-between align-items-center">
                     <span>Doação (Opções)</span>
                     <div className="btn-group">
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/doacao')}>Copiar Link</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => {
+                        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+                        navigator.clipboard?.writeText(origin + '/#/doacao')
+                      }}>Copiar Link</button>
                       <a className="btn btn-sm btn-outline-primary" href="/#/doacao">Abrir</a>
                     </div>
                   </div>
@@ -305,7 +308,10 @@ function AmigoEvangelizador() {
                   <div className="d-flex justify-content-between align-items-center">
                     <span>PIX</span>
                     <div className="btn-group">
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/pix')}>Copiar Link</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => {
+                        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+                        navigator.clipboard?.writeText(origin + '/#/pix')
+                      }}>Copiar Link</button>
                       <a className="btn btn-sm btn-outline-primary" href="/#/pix">Abrir</a>
                     </div>
                   </div>
@@ -314,7 +320,10 @@ function AmigoEvangelizador() {
                   <div className="d-flex justify-content-between align-items-center">
                     <span>Boleto</span>
                     <div className="btn-group">
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/boleto')}>Copiar Link</button>
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => {
+                        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+                        navigator.clipboard?.writeText(origin + '/#/boleto')
+                      }}>Copiar Link</button>
                       <a className="btn btn-sm btn-outline-primary" href="/#/boleto">Abrir</a>
                     </div>
                   </div>
@@ -325,9 +334,7 @@ function AmigoEvangelizador() {
               <div className="mb-2">
                 <label className="form-label">Convite para Amigo Evangelizador</label>
                 <div className="input-group">
-                  <textarea id="msg1" className="form-control" rows={3} readOnly>
-Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus e nos ajude a evangelizar mais pessoas! Conheça as formas de contribuir: {location.origin}/#/doacao
-                  </textarea>
+                  <textarea id="msg1" className="form-control" rows={3} readOnly defaultValue={`Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus e nos ajude a evangelizar mais pessoas! Conheça as formas de contribuir: ${typeof window !== 'undefined' ? window.location.origin : ''}/#/doacao`} />
                   <button type="button" className="btn btn-outline-secondary" onClick={() => {
                     const el = document.getElementById('msg1') as HTMLTextAreaElement | null
                     el && navigator.clipboard?.writeText(el.value)
@@ -337,9 +344,7 @@ Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus e nos ajude a evangeliz
               <div className="mb-2">
                 <label className="form-label">Mensagem de PIX</label>
                 <div className="input-group">
-                  <textarea id="msg2" className="form-control" rows={2} readOnly>
-Para doar por PIX: use a chave informada em {location.origin}/#/pix
-                  </textarea>
+                  <textarea id="msg2" className="form-control" rows={2} readOnly defaultValue={`Para doar por PIX: use a chave informada em ${typeof window !== 'undefined' ? window.location.origin : ''}/#/pix`} />
                   <button type="button" className="btn btn-outline-secondary" onClick={() => {
                     const el = document.getElementById('msg2') as HTMLTextAreaElement | null
                     el && navigator.clipboard?.writeText(el.value)
@@ -348,10 +353,10 @@ Para doar por PIX: use a chave informada em {location.origin}/#/pix
               </div>
 
               <div className="d-flex gap-2 mt-3">
-                <a className="btn btn-success" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent('Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus: ' + location.origin + '/#/doacao')}`}>
+                <a className="btn btn-success" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent('Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus: ' + (typeof window !== 'undefined' ? window.location.origin : '') + '/#/doacao')}`}>
                   <i className="bi bi-whatsapp me-1"></i>Compartilhar no WhatsApp
                 </a>
-                <a className="btn btn-outline-primary" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.origin + '/#/doacao')}`}>
+                <a className="btn btn-outline-primary" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent((typeof window !== 'undefined' ? window.location.origin : '') + '/#/doacao')}`}>
                   <i className="bi bi-facebook me-1"></i>Facebook
                 </a>
               </div>
