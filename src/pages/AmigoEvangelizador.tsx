@@ -40,6 +40,7 @@ function AmigoEvangelizador() {
   const [frequency, setFrequency] = useState<'Única' | 'Mensal' | 'Trimestral' | 'Anual'>('Mensal')
   const cadastroRef = useRef<HTMLDivElement | null>(null)
   const doacoesRef = useRef<HTMLDivElement | null>(null)
+  const divulgacoesRef = useRef<HTMLDivElement | null>(null)
   const amigo = useForm<AmigoForm>({
     resolver: zodResolver(amigoSchema),
     defaultValues: { name: '', email: '', phone: '', cpf: '', birth: '', cep: '', address: '', city: '', state: '', consent: false }
@@ -115,6 +116,7 @@ function AmigoEvangelizador() {
         <div className="btn-group" role="group" aria-label="Navegação seções">
           <button type="button" className="btn btn-outline-primary" onClick={() => { ensureTabs(); scrollTo(cadastroRef.current) }}>Cadastro</button>
           <button type="button" className="btn btn-outline-secondary" onClick={() => { ensureTabs(); scrollTo(doacoesRef.current) }}>Doações</button>
+          <button type="button" className="btn btn-outline-secondary" onClick={() => { ensureTabs(); scrollTo(divulgacoesRef.current) }}>Divulgações</button>
         </div>
       </div>
 
@@ -255,6 +257,104 @@ function AmigoEvangelizador() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div ref={divulgacoesRef} className="card shadow-sm mb-4">
+        <div className="card-header bg-info text-white">Divulgações</div>
+        <div className="card-body">
+          <p className="text-muted">Materiais e mensagens para compartilhar a missão e convidar mais pessoas a se tornarem Amigos Evangelizadores.</p>
+
+          <div className="row g-4">
+            <div className="col-12 col-lg-6">
+              <h3 className="h6">Materiais para Download</h3>
+              <ul className="list-group mb-3">
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  Logo (PNG)
+                  <a className="btn btn-sm btn-outline-primary" href="/logo.png" download>Baixar</a>
+                </li>
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  Banner Horizontal
+                  <a className="btn btn-sm btn-outline-primary" target="_blank" rel="noreferrer" href="https://placehold.co/1024x360?text=Banner+Amigo+Evangelizador">Abrir</a>
+                </li>
+                <li className="list-group-item d-flex justify-content-between align-items-center">
+                  Banner Quadrado
+                  <a className="btn btn-sm btn-outline-primary" target="_blank" rel="noreferrer" href="https://placehold.co/1080x1080?text=Amigo+Evangelizador">Abrir</a>
+                </li>
+              </ul>
+              <div className="text-center">
+                <img className="img-fluid rounded border" src="https://placehold.co/540x300?text=Preview+de+Banner" alt="Prévia de banner" loading="lazy" decoding="async" />
+              </div>
+            </div>
+
+            <div className="col-12 col-lg-6">
+              <h3 className="h6">Links Rápidos</h3>
+              <div className="list-group mb-3">
+                <div className="list-group-item">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>Doação (Opções)</span>
+                    <div className="btn-group">
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/doacao')}>Copiar Link</button>
+                      <a className="btn btn-sm btn-outline-primary" href="/#/doacao">Abrir</a>
+                    </div>
+                  </div>
+                </div>
+                <div className="list-group-item">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>PIX</span>
+                    <div className="btn-group">
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/pix')}>Copiar Link</button>
+                      <a className="btn btn-sm btn-outline-primary" href="/#/pix">Abrir</a>
+                    </div>
+                  </div>
+                </div>
+                <div className="list-group-item">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>Boleto</span>
+                    <div className="btn-group">
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => navigator.clipboard?.writeText(location.origin + '/#/boleto')}>Copiar Link</button>
+                      <a className="btn btn-sm btn-outline-primary" href="/#/boleto">Abrir</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="h6">Mensagens Prontas</h3>
+              <div className="mb-2">
+                <label className="form-label">Convite para Amigo Evangelizador</label>
+                <div className="input-group">
+                  <textarea id="msg1" className="form-control" rows={3} readOnly>
+Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus e nos ajude a evangelizar mais pessoas! Conheça as formas de contribuir: {location.origin}/#/doacao
+                  </textarea>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => {
+                    const el = document.getElementById('msg1') as HTMLTextAreaElement | null
+                    el && navigator.clipboard?.writeText(el.value)
+                  }}>Copiar</button>
+                </div>
+              </div>
+              <div className="mb-2">
+                <label className="form-label">Mensagem de PIX</label>
+                <div className="input-group">
+                  <textarea id="msg2" className="form-control" rows={2} readOnly>
+Para doar por PIX: use a chave informada em {location.origin}/#/pix
+                  </textarea>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => {
+                    const el = document.getElementById('msg2') as HTMLTextAreaElement | null
+                    el && navigator.clipboard?.writeText(el.value)
+                  }}>Copiar</button>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2 mt-3">
+                <a className="btn btn-success" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${encodeURIComponent('Seja Amigo Evangelizador da Comunidade Doce Mãe de Deus: ' + location.origin + '/#/doacao')}`}>
+                  <i className="bi bi-whatsapp me-1"></i>Compartilhar no WhatsApp
+                </a>
+                <a className="btn btn-outline-primary" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.origin + '/#/doacao')}`}>
+                  <i className="bi bi-facebook me-1"></i>Facebook
+                </a>
+              </div>
             </div>
           </div>
         </div>
