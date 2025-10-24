@@ -7,11 +7,9 @@ import { isValidCpfOrCnpj, onlyDigits } from '../utils/validators'
 
 const boletoSchema = z.object({
   name: z.string().min(2, 'Informe o nome completo'),
-  doc: z.preprocess((v) => onlyDigits(v), z.string().refine(isValidCpfOrCnpj, 'CPF/CNPJ inválido')),
+  doc: z.string().refine((v) => isValidCpfOrCnpj(onlyDigits(v)), 'CPF/CNPJ inválido'),
   email: z.string().email('E-mail inválido'),
-  amount: z
-    .number({ invalid_type_error: 'Informe um valor numérico' })
-    .min(1, 'Valor mínimo é R$ 1'),
+  amount: z.number().min(1, 'Valor mínimo é R$ 1'),
 })
 
 type BoletoForm = z.infer<typeof boletoSchema>
@@ -54,7 +52,7 @@ function Boleto() {
                   mask={docMask}
                   className={`form-control ${errors.doc ? 'is-invalid' : ''}`}
                   value={docValue}
-                  onChange={(e) => { setDocValue(e.target.value); setValue('doc', e.target.value) }}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setDocValue(e.target.value); setValue('doc', e.target.value) }}
                 />
                 {errors.doc && <div className="invalid-feedback">{errors.doc.message}</div>}
               </div>
@@ -82,4 +80,3 @@ function Boleto() {
 }
 
 export default Boleto
-

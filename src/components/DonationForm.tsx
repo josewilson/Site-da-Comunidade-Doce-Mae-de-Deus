@@ -13,10 +13,11 @@ type Props = {
 const schema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
   email: z.string().email('E-mail inválido'),
-  phone: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidPhoneBR(v), 'Telefone inválido')),
-  amount: z
-    .number({ invalid_type_error: 'Informe um valor numérico' })
-    .min(1, 'Valor mínimo é R$ 1'),
+  phone: z
+    .string()
+    .optional()
+    .refine((v) => !v || isValidPhoneBR(onlyDigits(v)), 'Telefone inválido'),
+  amount: z.number().min(1, 'Valor mínimo é R$ 1'),
   message: z.string().optional()
 })
 
@@ -55,7 +56,7 @@ function DonationForm({ onSubmit }: Props) {
         <InputMask
           mask="(99) 99999-9999"
           className="form-control"
-          onChange={(e) => setValue('phone', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('phone', e.target.value)}
         />
       </div>
       <div className="mb-3">

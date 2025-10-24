@@ -1,36 +1,34 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import InputMask from 'react-input-mask'
 import DonationForm from '../components/DonationForm'
 import { loadBootstrap } from '../utils/bootstrap'
-import { isValidCEP, isValidUF, isValidPhoneBR, isValidCPF, onlyDigits } from '../utils/validators'
+import { isValidCEP, isValidUF, isValidPhoneBR, isValidCPF, onlyDigits, isValidCpfOrCnpj } from '../utils/validators'
 import { Link } from 'react-router-dom'
 import Breadcrumbs from '../components/Breadcrumbs'
 
 const amigoSchema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
   email: z.string().email('E-mail inválido'),
-  phone: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidPhoneBR(v), 'Telefone inválido')),
-  cpf: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidCPF(v), 'CPF inválido')),
+  phone: z.string().optional().refine((v) => !v || isValidPhoneBR(onlyDigits(v)), 'Telefone inválido'),
+  cpf: z.string().optional().refine((v) => !v || isValidCPF(onlyDigits(v)), 'CPF inválido'),
   birth: z.string().optional(),
-  cep: z.preprocess((v) => onlyDigits(v), z.string().optional().refine((v) => !v || isValidCEP(v), 'CEP inválido')),
+  cep: z.string().optional().refine((v) => !v || isValidCEP(onlyDigits(v)), 'CEP inválido'),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional().refine((v) => !v || isValidUF(v), 'UF inválida'),
-  consent: z.literal(true, { errorMap: () => ({ message: 'É necessário consentir com a política de privacidade' }) })
+  consent: z.boolean().refine((v) => v === true, 'É necessário consentir com a política de privacidade')
 })
 
 type AmigoForm = z.infer<typeof amigoSchema>
 
 const boletoSchema = z.object({
   name: z.string().min(2, 'Informe o nome completo'),
-  doc: z.string().min(11, 'CPF/CNPJ inválido'),
+  doc: z.string().refine((v) => isValidCpfOrCnpj(onlyDigits(v)), 'CPF/CNPJ inválido'),
   email: z.string().email('E-mail inválido'),
-  amount: z
-    .number({ invalid_type_error: 'Informe um valor numérico' })
-    .min(1, 'Valor mínimo é R$ 1'),
+  amount: z.number().min(1, 'Valor mínimo é R$ 1'),
 })
 
 type BoletoForm = z.infer<typeof boletoSchema>
@@ -41,6 +39,7 @@ function AmigoEvangelizador() {
   const cadastroRef = useRef<HTMLDivElement | null>(null)
   const doacoesRef = useRef<HTMLDivElement | null>(null)
   const divulgacoesRef = useRef<HTMLDivElement | null>(null)
+
   const amigo = useForm<AmigoForm>({
     resolver: zodResolver(amigoSchema),
     defaultValues: { name: '', email: '', phone: '', cpf: '', birth: '', cep: '', address: '', city: '', state: '', consent: false }
@@ -52,8 +51,6 @@ function AmigoEvangelizador() {
   })
 
   function submitAmigo(values: AmigoForm) {
-    console.log('Cadastro Amigo Evangelizador:', values)
-    // Persistência local simples
     const key = 'amigos_evangelizadores'
     const list = JSON.parse(localStorage.getItem(key) || '[]')
     list.push({ ...values, createdAt: new Date().toISOString() })
@@ -62,27 +59,16 @@ function AmigoEvangelizador() {
     amigo.reset({ ...values })
   }
 
-  const pixKey = 'SUA_CHAVE_PIX_AQUI' // substitua pela chave real
+  const pixKey = 'SUA_CHAVE_PIX_AQUI'
+  function copyPix() { navigator.clipboard?.writeText(pixKey) }
 
-  function copyPix() {
-    navigator.clipboard?.writeText(pixKey)
-  }
-
-  async function ensureTabs() {
-    await loadBootstrap()
-  }
-
-  function scrollTo(el: HTMLElement | null) {
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  async function ensureTabs() { await loadBootstrap() }
+  function scrollTo(el: HTMLElement | null) { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 
   function exportCsv() {
     const key = 'amigos_evangelizadores'
     const list: any[] = JSON.parse(localStorage.getItem(key) || '[]')
-    if (!list.length) {
-      alert('Não há cadastros para exportar')
-      return
-    }
+    if (!list.length) { alert('Não há cadastros para exportar'); return }
     const headers = ['name','email','phone','cpf','birth','cep','address','city','state','consent','createdAt']
     const rows = [headers.join(',')]
     for (const item of list) {
@@ -104,6 +90,9 @@ function AmigoEvangelizador() {
     URL.revokeObjectURL(url)
   }
 
+  const [docValue, setDocValue] = useState('')
+  const docMask = useMemo(() => (onlyDigits(docValue).length > 11 ? '99.999.999/9999-99' : '999.999.999-99'), [docValue])
+
   return (
     <section>
       <Breadcrumbs />
@@ -111,6 +100,7 @@ function AmigoEvangelizador() {
         <h1 className="h3 mb-2">Amigo Evangelizador</h1>
         <p className="text-muted mb-0">Cadastre-se e escolha uma forma de apoiar nossa missão. Você pode contribuir via cadastro de doação, PIX ou boleto.</p>
       </div>
+
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <h2 className="h3 mb-0">Amigo Evangelizador</h2>
         <div className="btn-group" role="group" aria-label="Navegação seções">
@@ -119,8 +109,6 @@ function AmigoEvangelizador() {
           <button type="button" className="btn btn-outline-secondary" onClick={() => { ensureTabs(); scrollTo(divulgacoesRef.current) }}>Divulgações</button>
         </div>
       </div>
-
-      <p className="text-muted">Seja Amigo Evangelizador: cadastre-se e escolha sua melhor forma de apoiar nossa missão.</p>
 
       <div ref={cadastroRef} className="card shadow-sm mb-4">
         <div className="card-header bg-primary text-white">Cadastro</div>
@@ -140,11 +128,11 @@ function AmigoEvangelizador() {
               </div>
               <div className="col-12 col-md-4">
                 <label className="form-label">Telefone</label>
-                <InputMask mask="(99) 99999-9999" className="form-control" onChange={(e) => amigo.setValue('phone', e.target.value)} />
+                <InputMask mask="(99) 99999-9999" className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => amigo.setValue('phone', e.target.value)} />
               </div>
               <div className="col-6 col-md-4">
                 <label className="form-label">CPF</label>
-                <InputMask mask="999.999.999-99" className="form-control" onChange={(e) => amigo.setValue('cpf', e.target.value)} />
+                <InputMask mask="999.999.999-99" className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => amigo.setValue('cpf', e.target.value)} />
               </div>
               <div className="col-6 col-md-4">
                 <label className="form-label">Data de Nascimento</label>
@@ -152,7 +140,7 @@ function AmigoEvangelizador() {
               </div>
               <div className="col-6 col-md-3">
                 <label className="form-label">CEP</label>
-                <InputMask mask="99999-999" className="form-control" onChange={(e) => amigo.setValue('cep', e.target.value)} />
+                <InputMask mask="99999-999" className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => amigo.setValue('cep', e.target.value)} />
               </div>
               <div className="col-6 col-md-5">
                 <label className="form-label">Endereço</label>
@@ -189,11 +177,11 @@ function AmigoEvangelizador() {
 
           <div className="row g-4">
             <div className="col-12 col-lg-6">
-              <h3 className="h5">Cadastro de Doação</h3>
+              <h3 className="h6">Cadastro de Doação</h3>
               <div className="row g-2 align-items-end mb-2">
                 <div className="col-12 col-md-6">
                   <label className="form-label">Periodicidade</label>
-                  <select className="form-select" value={frequency} onChange={(e)=> setFrequency(e.target.value as any)}>
+                  <select className="form-select" value={frequency} onChange={(e) => setFrequency(e.target.value as any)}>
                     <option>Única</option>
                     <option>Mensal</option>
                     <option>Trimestral</option>
@@ -205,27 +193,20 @@ function AmigoEvangelizador() {
               <DonationForm />
             </div>
             <div className="col-12 col-lg-6">
-              <h3 className="h5">PIX</h3>
+              <h3 className="h6">PIX</h3>
               <label className="form-label">Chave PIX</label>
               <div className="input-group mb-3">
                 <input className="form-control" readOnly value={pixKey} />
                 <button type="button" className="btn btn-outline-secondary" onClick={copyPix}>Copiar</button>
               </div>
-              <img
-                className="img-fluid rounded border"
-                src="https://placehold.co/240x240?text=PIX+QR"
-                alt="QR Code PIX"
-                loading="lazy"
-                decoding="async"
-              />
+              <img className="img-fluid rounded border" src="https://placehold.co/240x240?text=PIX+QR" alt="QR Code PIX" loading="lazy" decoding="async" />
             </div>
           </div>
 
           <div className="row g-4 mt-1">
             <div className="col-12">
-              <h3 className="h5">Boleto</h3>
-              <form onSubmit={boleto.handleSubmit((v)=>{
-                // mock de geração
+              <h3 className="h6">Boleto</h3>
+              <form onSubmit={boleto.handleSubmit((v) => {
                 alert(`Boleto gerado! (mock)\nPeriodicidade: ${frequency}`)
                 console.log('Boleto Amigo Evangelizador:', v)
               })} noValidate>
@@ -237,7 +218,12 @@ function AmigoEvangelizador() {
                   </div>
                   <div className="col-12 col-md-6">
                     <label className="form-label">CPF/CNPJ</label>
-                    <InputMask mask="999.999.999-99" className={`form-control ${boleto.formState.errors.doc ? 'is-invalid' : ''}`} onChange={(e)=>boleto.setValue('doc', e.target.value)} />
+                    <InputMask
+                      mask={docMask}
+                      className={`form-control ${boleto.formState.errors.doc ? 'is-invalid' : ''}`}
+                      value={docValue}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setDocValue(e.target.value); boleto.setValue('doc', e.target.value) }}
+                    />
                     {boleto.formState.errors.doc && <div className="invalid-feedback">{boleto.formState.errors.doc.message}</div>}
                   </div>
                   <div className="col-12 col-md-6">
@@ -369,3 +355,4 @@ function AmigoEvangelizador() {
 }
 
 export default AmigoEvangelizador
+
