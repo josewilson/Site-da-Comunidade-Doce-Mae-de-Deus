@@ -1,5 +1,6 @@
 import EventCard from '../components/EventCard'
 import { useEvents } from '../hooks/useEvents'
+import { Link } from 'react-router-dom'
 
 function Home() {
   const events = useEvents()
@@ -9,8 +10,8 @@ function Home() {
         <h1 className="display-6 mb-2">Bem-vindos à Comunidade Doce Mãe de Deus</h1>
         <p className="text-muted mb-3">Participe das nossas atividades, eventos e ações de solidariedade. Juntos fortalecemos nossa fé e serviço ao próximo.</p>
         <div className="d-flex gap-2">
-          <a className="btn btn-primary" href="#/amigo-evangelizador">Seja Amigo Evangelizador</a>
-          <a className="btn btn-outline-primary" href="#/doacao">Fazer uma Doação</a>
+          <Link className="btn btn-primary" to="/amigo-evangelizador">Seja Amigo Evangelizador</Link>
+          <Link className="btn btn-outline-primary" to="/doacao">Fazer uma Doação</Link>
         </div>
       </div>
       <h3 className="h5 section-title">Próximos Eventos</h3>

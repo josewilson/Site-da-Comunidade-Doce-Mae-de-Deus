@@ -7,6 +7,7 @@ import DonationForm from '../components/DonationForm'
 import { loadBootstrap } from '../utils/bootstrap'
 import { isValidCEP, isValidUF, isValidPhoneBR, isValidCPF, onlyDigits } from '../utils/validators'
 import { Link } from 'react-router-dom'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 const amigoSchema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
@@ -104,6 +105,11 @@ function AmigoEvangelizador() {
 
   return (
     <section>
+      <Breadcrumbs />
+      <div className="hero mb-4">
+        <h1 className="h3 mb-2">Amigo Evangelizador</h1>
+        <p className="text-muted mb-0">Cadastre-se e escolha uma forma de apoiar nossa missão. Você pode contribuir via cadastro de doação, PIX ou boleto.</p>
+      </div>
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <h2 className="h3 mb-0">Amigo Evangelizador</h2>
         <div className="btn-group" role="group" aria-label="Navegação seções">
