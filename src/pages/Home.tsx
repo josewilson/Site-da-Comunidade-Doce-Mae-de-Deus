@@ -5,14 +5,15 @@ function Home() {
   const events = useEvents()
   return (
     <section>
-      <div className="mb-4">
-        <h2 className="h3">Bem-vindos à Comunidade Doce Mãe de Deus</h2>
-        <p className="text-muted">
-          Participe das nossas atividades, eventos e ações de solidariedade.
-          Juntos fortalecemos nossa fé e serviço ao próximo.
-        </p>
+      <div className="hero mb-4">
+        <h1 className="display-6 mb-2">Bem-vindos à Comunidade Doce Mãe de Deus</h1>
+        <p className="text-muted mb-3">Participe das nossas atividades, eventos e ações de solidariedade. Juntos fortalecemos nossa fé e serviço ao próximo.</p>
+        <div className="d-flex gap-2">
+          <a className="btn btn-primary" href="#/amigo-evangelizador">Seja Amigo Evangelizador</a>
+          <a className="btn btn-outline-primary" href="#/doacao">Fazer uma Doação</a>
+        </div>
       </div>
-      <h3 className="h4">Próximos Eventos</h3>
+      <h3 className="h5 section-title">Próximos Eventos</h3>
       <div className="row g-3">
         {events.map(ev => (
           <div className="col-12 col-sm-6 col-lg-4" key={ev.id}>

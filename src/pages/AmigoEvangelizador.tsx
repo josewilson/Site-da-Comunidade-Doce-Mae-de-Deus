@@ -6,6 +6,7 @@ import InputMask from 'react-input-mask'
 import DonationForm from '../components/DonationForm'
 import { loadBootstrap } from '../utils/bootstrap'
 import { isValidCEP, isValidUF, isValidPhoneBR, isValidCPF, onlyDigits } from '../utils/validators'
+import { Link } from 'react-router-dom'
 
 const amigoSchema = z.object({
   name: z.string().min(2, 'Informe seu nome completo'),
@@ -160,7 +161,7 @@ function AmigoEvangelizador() {
             </div>
             <div className="form-check mt-3">
               <input id="consent" className={`form-check-input ${amigo.formState.errors.consent ? 'is-invalid' : ''}`} type="checkbox" {...amigo.register('consent')} />
-              <label htmlFor="consent" className="form-check-label">Autorizo o contato e concordo com a Política de Privacidade.</label>
+              <label htmlFor="consent" className="form-check-label">Autorizo o contato e concordo com a <Link to="/politica-de-privacidade">Política de Privacidade</Link>.</label>
               {amigo.formState.errors.consent && <div className="invalid-feedback d-block">{amigo.formState.errors.consent.message as any}</div>}
             </div>
             <div className="mt-3">

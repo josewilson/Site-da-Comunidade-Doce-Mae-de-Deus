@@ -9,13 +9,17 @@ const CadastroDoacao = lazy(() => import('./pages/CadastroDoacao'))
 const Pix = lazy(() => import('./pages/Pix'))
 const Boleto = lazy(() => import('./pages/Boleto'))
 const AmigoEvangelizador = lazy(() => import('./pages/AmigoEvangelizador'))
+const PoliticaPrivacidade = lazy(() => import('./pages/PoliticaPrivacidade'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 import Header from './components/Header'
 import Footer from './components/Footer'
 import { loadBootstrap } from './utils/bootstrap'
+import TopBar from './components/TopBar'
 
 function App() {
   return (
     <HashRouter>
+      <TopBar />
       <Header />
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
@@ -65,6 +69,8 @@ function App() {
             <Route path="/pix" element={<Pix />} />
             <Route path="/boleto" element={<Boleto />} />
             <Route path="/amigo-evangelizador" element={<AmigoEvangelizador />} />
+            <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>
@@ -74,4 +80,3 @@ function App() {
 }
 
 export default App
-
